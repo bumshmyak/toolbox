@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="graph" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/graph" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/graph" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fexceptions" />
+			<Add directory="../googletest/include" />
+		</Compiler>
+		<Linker>
+			<Add option="-lpthread" />
+			<Add library="../googletest/make/gtest_main.a" />
+		</Linker>
+		<Unit filename="apspp.h" />
+		<Unit filename="dijkstra-inl.h" />
+		<Unit filename="dijkstra.cc" />
+		<Unit filename="floyd.cc" />
+		<Unit filename="ford_bellman.cc" />
+		<Unit filename="graph_common.cc" />
+		<Unit filename="graph_common.h" />
+		<Unit filename="heap.h" />
+		<Unit filename="johnson.cc" />
+		<Unit filename="ssspp.h" />
+		<Unit filename="ut/apspp_test.cc" />
+		<Unit filename="ut/ssspp_test.cc" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
