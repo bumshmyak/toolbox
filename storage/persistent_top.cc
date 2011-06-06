@@ -1,3 +1,5 @@
+#include "storage/persistent_top.h"
+
 #include <sys/stat.h>
 #include <errno.h>
 
@@ -8,14 +10,11 @@
 #include <stdexcept>
 #include <cassert>
 
-#include <storage/persistent_top.h>
-
 namespace simple {
 
-void PersistentTop::read_entry(std::istream& data_file, std::string& entry)
-{
+void PersistentTop::read_entry(std::istream& data_file, std::string& entry) {
   uint32_t entry_size;
-  data_file.read((char*)&entry_size, sizeof(entry_size));
+  data_file.read(reinterpret_cast<char*>(&entry_size), sizeof(entry_size));
   entry.resize(entry_size);
   data_file.read(const_cast<char*>(entry.data()), entry_size);
   if (data_file.fail()) {
@@ -23,8 +22,8 @@ void PersistentTop::read_entry(std::istream& data_file, std::string& entry)
   }
 }
 
-void PersistentTop::write_entry(std::ostream& data_file, const std::string& entry)
-{
+void PersistentTop::write_entry(std::ostream& data_file,
+                                const std::string& entry) {
   uint32_t entry_size = entry.size();
   data_file.write((const char*)&entry_size, sizeof(entry_size));
   data_file.write(entry.data(), entry.size());
@@ -33,8 +32,7 @@ void PersistentTop::write_entry(std::ostream& data_file, const std::string& entr
   }
 }
 
-void PersistentTop::push(const std::string& entry)
-{
+void PersistentTop::push(const std::string& entry) {
   std::fstream data_file(filename_.c_str());
   uint32_t entries_count;
 
@@ -47,7 +45,8 @@ void PersistentTop::push(const std::string& entry)
     }
     entries_count = 0;
   } else {
-    data_file.read((char*)&entries_count, sizeof(entries_count));
+    data_file.read(reinterpret_cast<char*>(&entries_count),
+                   sizeof(entries_count));
   }
 
   if (entries_count == max_entries_count_) {
@@ -57,14 +56,14 @@ void PersistentTop::push(const std::string& entry)
     --entries_count;
   }
 
-  std::vector< std::string > entries;  
+  std::vector< std::string > entries;
 
   for (int entry_index = 0; entry_index < entries_count; ++entry_index) {
     std::string entry;
     read_entry(data_file, entry);
     entries.push_back(entry);
   }
-    
+
   // append new
   entries.push_back(entry);
   ++entries_count;
@@ -77,15 +76,13 @@ void PersistentTop::push(const std::string& entry)
     write_entry(data_file, entries[entry_index]);
   }
 }
-
 }
 
 namespace batch {
 
-uint64_t get_file_size(const std::string& filename)
-{
+uint64_t get_file_size(const std::string& filename) {
   struct stat file_info;
-  
+
   int status = stat(filename.c_str(), &file_info);
   if (status != 0) {
     if (errno == ENOENT) {
@@ -94,12 +91,11 @@ uint64_t get_file_size(const std::string& filename)
       throw std::runtime_error(filename + " can't stat file");
     }
   }
-  
+
   return file_info.st_size;
 }
 
-void PersistentTop::push(const std::string& entry)
-{
+void PersistentTop::push(const std::string& entry) {
   uint64_t file_size = 0;
   bool file_exists = true;
   uint32_t entries_count = 0;
@@ -109,7 +105,8 @@ void PersistentTop::push(const std::string& entry)
   {
     std::ifstream data_file(filename_.c_str());
     if (data_file.is_open()) {
-      data_file.read((char*)&entries_count, sizeof(entries_count));
+      data_file.read(reinterpret_cast<char*>(&entries_count),
+                     sizeof(entries_count));
     }
   }
 
@@ -123,10 +120,11 @@ void PersistentTop::push(const std::string& entry)
       data_file.open(filename_.c_str(), std::ios_base::out);
     }
     data_file.seekp(0, std::ios_base::beg);
-    data_file.write((char*)&entries_count, sizeof(entries_count));
+    data_file.write(reinterpret_cast<char*>(&entries_count),
+                    sizeof(entries_count));
 
     data_file.seekp(0, std::ios_base::end);
-    data_file.write((char*)&entry_size, sizeof(entry_size));
+    data_file.write(reinterpret_cast<char*>(&entry_size), sizeof(entry_size));
     data_file.write(entry.data(), entry_size);
 
     if (!data_file.good()) {
@@ -134,7 +132,7 @@ void PersistentTop::push(const std::string& entry)
     }
   } else {
     try {
-      file_size = get_file_size(filename_); 
+      file_size = get_file_size(filename_);
     } catch(const file_not_exists& e) {
       file_exists = false;
     }
@@ -150,7 +148,7 @@ void PersistentTop::push(const std::string& entry)
       if (!data_file.good()) {
         throw std::runtime_error(filename_ + " can't read file");
       }
-      entries_count = *((uint32_t*)buf);
+      entries_count = *(reinterpret_cast<uint32_t*>(buf));
     }
 
     memcpy(buf + file_size, &entry_size, sizeof(entry_size));
@@ -162,17 +160,19 @@ void PersistentTop::push(const std::string& entry)
 
     while (entries_count > max_entries_count_) {
       // skipping entries in the begining
-      uint32_t entry_size = *((uint32_t*)(buf + off));
+      uint32_t entry_size = *(reinterpret_cast<uint32_t*>(buf + off));
       off += sizeof(entry_size) + entry_size;
       file_size -= (sizeof(entry_size) + entry_size);
       --entries_count;
     }
-    
+
     // update count
-    *(uint32_t*)(buf + off - sizeof(entries_count)) = entries_count;
+    *reinterpret_cast<uint32_t*>(buf + off - sizeof(entries_count)) =
+        entries_count;
 
     // write back
-    std::ofstream data_file(filename_.c_str(), std::ios_base::out | std::ios_base::trunc);
+    std::ofstream data_file(filename_.c_str(),
+                            std::ios_base::out | std::ios_base::trunc);
     data_file.write(buf + off - sizeof(entries_count), file_size);
     delete buf;
 
@@ -181,7 +181,6 @@ void PersistentTop::push(const std::string& entry)
     }
   }
 }
-
 }
 
 namespace advanced {
@@ -189,41 +188,47 @@ namespace advanced {
 const char* PersistentTop::header_file_suffix = ".pth";
 const char* PersistentTop::data_file_suffix[2] = {".0", ".1"};
 
-void PersistentTop::write_header()
-{
-  header_file_.write((const char*)&active_file_index_, sizeof(active_file_index_));
-  header_file_.write((const char*)&first_entry_index_, sizeof(first_entry_index_));
+void PersistentTop::write_header() {
+  header_file_.write((const char*)&active_file_index_,
+                     sizeof(active_file_index_));
+  header_file_.write((const char*)&first_entry_index_,
+                     sizeof(first_entry_index_));
 
   for (int data_file_index = 0; data_file_index < 2; ++data_file_index) {
     uint32_t entries_count = entries_offsets_[data_file_index].size();
     header_file_.write((const char*)&entries_count, sizeof(entries_count));
 
     for (int entry_index = 0; entry_index < entries_count; ++entry_index) {
-      header_file_.write((const char*)&entries_offsets_[data_file_index][entry_index],
-                         sizeof(entries_offsets_[data_file_index][entry_index]));
+      header_file_.write(
+          (const char*)&entries_offsets_[data_file_index][entry_index],
+          sizeof(entries_offsets_[data_file_index][entry_index]));
     }
   }
 }
 
-void PersistentTop::read_header()
-{
-  header_file_.read((char*)&active_file_index_, sizeof(active_file_index_));
-  header_file_.read((char*)&first_entry_index_, sizeof(first_entry_index_));
+void PersistentTop::read_header() {
+  header_file_.read(reinterpret_cast<char*>(&active_file_index_),
+                    sizeof(active_file_index_));
+
+  header_file_.read(reinterpret_cast<char*>(&first_entry_index_),
+                    sizeof(first_entry_index_));
 
   for (int data_file_index = 0; data_file_index < 2; ++data_file_index) {
     uint32_t entries_count;
-    header_file_.read((char*)&entries_count, sizeof(entries_count));
+    header_file_.read(reinterpret_cast<char*>(&entries_count),
+                      sizeof(entries_count));
     entries_offsets_[data_file_index].resize(entries_count);
 
     for (int entry_index = 0; entry_index < entries_count; ++entry_index) {
-      header_file_.read((char*)&entries_offsets_[data_file_index][entry_index],
-                 sizeof(entries_offsets_[data_file_index][entry_index]));
+      header_file_.read(
+          reinterpret_cast<char*>(
+              &entries_offsets_[data_file_index][entry_index]),
+          sizeof(entries_offsets_[data_file_index][entry_index]));
     }
   }
 }
 
-void PersistentTop::open(const std::string& filename)
-{
+void PersistentTop::open(const std::string& filename) {
   // open header file
   {
     filename_ = filename;
@@ -261,13 +266,15 @@ void PersistentTop::open(const std::string& filename)
   // open data files
   {
     for (int data_file_index = 0; data_file_index < 2; ++data_file_index) {
-      std::string data_file_path = filename_ + data_file_suffix[data_file_index];
+      std::string data_file_path =
+          filename_ + data_file_suffix[data_file_index];
       data_files_[data_file_index].open(data_file_path.c_str());
 
       if (!data_files_[data_file_index].is_open()) {
         // create new
         data_files_[data_file_index].clear();
-        data_files_[data_file_index].open(data_file_path.c_str(), std::ios_base::out);
+        data_files_[data_file_index].open(data_file_path.c_str(),
+                                          std::ios_base::out);
         if (!data_files_[data_file_index].is_open()) {
           throw std::runtime_error(data_file_path + " can't be opened");
         }
@@ -283,23 +290,25 @@ void PersistentTop::open(const std::string& filename)
   }
 }
 
-void PersistentTop::close()
-{
+void PersistentTop::close() {
   header_file_.close();
   for (int data_file_index = 0; data_file_index < 2; ++data_file_index) {
     data_files_[data_file_index].close();
   }
 }
 
-void PersistentTop::push(const std::string& entry)
-{
+void PersistentTop::push(const std::string& entry) {
   if (entries_offsets_[active_file_index_].size() == max_entries_count_) {
     active_file_index_ ^= 1;
-    std::string data_file_path = filename_ + data_file_suffix[active_file_index_];
+    std::string data_file_path =
+        filename_ + data_file_suffix[active_file_index_];
 
     entries_offsets_[active_file_index_].clear();
     data_files_[active_file_index_].close();
-    data_files_[active_file_index_].open(data_file_path.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+    data_files_[active_file_index_].open(data_file_path.c_str(),
+                                         std::ios_base::in |
+                                         std::ios_base::out |
+                                         std::ios_base::trunc);
     if (!data_files_[active_file_index_].is_open()) {
       throw std::runtime_error("can't reopen data file");
     }
@@ -310,13 +319,14 @@ void PersistentTop::push(const std::string& entry)
 
   uint32_t entry_size = entry.size();
 
-  data_files_[active_file_index_].write((const char*)&entry_size, sizeof(entry_size));
+  data_files_[active_file_index_].write((const char*)&entry_size,
+                                        sizeof(entry_size));
   data_files_[active_file_index_].write(entry.c_str(), entry_size);
 
   if (data_files_[active_file_index_].fail()) {
     throw std::runtime_error("can't push entry");
   }
-  
+
   entries_offsets_[active_file_index_].push_back(entry_offset);
 
   int total_entries = entries_offsets_[active_file_index_].size()
@@ -328,5 +338,4 @@ void PersistentTop::push(const std::string& entry)
     first_entry_index_ = (first_entry_index_ + 1) % max_entries_count_;
   }
 }
-
 }

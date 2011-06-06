@@ -3,7 +3,7 @@ include $(SRCROOT)/config.mak
 
 TARGET = basic_test 
 
-SOURCES = *.cc
+SOURCES = $(SRCROOT)/basic/ut/*.cc
 HEADERS = $(INCLUDES_PATH)/basic/*.h
 
 LDFLAGS += -L$(INSTALL_LIB_PATH) -ltoolbox_basic

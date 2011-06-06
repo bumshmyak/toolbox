@@ -1,13 +1,13 @@
-#ifndef TOOLBOX_STRING_STRING_ALGO_H_
-#define TOOLBOX_STRING_STRING_ALGO_H_
+#ifndef _TOOLBOX_STRING_STRING_ALGO_H_
+#define _TOOLBOX_STRING_STRING_ALGO_H_
 
 #include <algorithm>
+#include <vector>
 
 namespace bicycle {
 
 template <class RandomAccessIterator>
-int lis_dummy(RandomAccessIterator first,RandomAccessIterator last)
-{
+int lis_dummy(RandomAccessIterator first, RandomAccessIterator last) {
   int size = std::distance(first, last);
 
   // d[i] - length of maximal increasing subsequence ending in *(first + i)
@@ -25,7 +25,6 @@ int lis_dummy(RandomAccessIterator first,RandomAccessIterator last)
 
   return res;
 }
-
 }
 
-#endif // TOOLBOX_STRING_STRING_ALGO_H_ 
+#endif  // TOOLBOX_STRING_STRING_ALGO_H_

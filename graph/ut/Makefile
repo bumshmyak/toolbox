@@ -3,7 +3,7 @@ include $(SRCROOT)/config.mak
 
 TARGET = graph_test 
 
-SOURCES = *.cc
+SOURCES = $(SRCROOT)/graph/ut/*.cc
 HEADERS = $(SRCROOT)/include/graph/*.h
 
 LDFLAGS += -L$(INSTALL_LIB_PATH) -ltoolbox_graph
