@@ -7,7 +7,7 @@ INSTALL_LIB_PATH = $(SRCROOT)/lib
 GTEST_LIB_PATH = $(SRCROOT)/googletest/make
 
 CPPLINT_OPTIONS="--filter=-legal/copyright,-runtime/threadsafe_f,\
--readability/stream,-runtime/references,-runtime/int"
+-readability/stream,-runtime/references,-runtime/int,-whitespace/end_of_line"
 
 CPPLINT = $(SRCROOT)/cpplint.py $(CPPLINT_OPTIONS)
 

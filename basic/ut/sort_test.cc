@@ -12,11 +12,24 @@ using std::cerr;
 using std::endl;
 using std::vector;
 
+TEST(InplaceMergeSort, Pemutations) {
+  const int ELEMENTS_COUNT = 7;
+  vector<int> a(ELEMENTS_COUNT);
+  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+    a[i] = i;
+  }
+
+  do {
+    vector<int> b = a;
+    bicycle::inplace_merge_sort(b.begin(), b.end());
+    ASSERT_TRUE(bicycle::is_ordered(b.begin(), b.end()));
+  } while (std::next_permutation(a.begin(), a.end()));
+}
+ 
 TEST(InplaceMergeSortTest, Stress) {
   const int TEST_COUNT = 1000;
   const int MAX_VALUE = 100;
 
-  srand(42);
   for (int test = 0; test < TEST_COUNT; ++test) {
     int n = test + 1;
     std::vector<int> a(n);
@@ -29,13 +42,34 @@ TEST(InplaceMergeSortTest, Stress) {
   }
 }
 
+TEST(QuickSortTest, Pemutations) {
+  const int ELEMENTS_COUNT = 5;
+  vector<int> a(ELEMENTS_COUNT);
+  for (int i = 0; i < ELEMENTS_COUNT; ++i) {
+    a[i] = i;
+  }
+
+  do {
+    vector<int> b = a;
+    cout << "---" << endl;
+    bicycle::quick_sort(b.begin(), b.end());
+    if (!bicycle::is_ordered(b.begin(), b.end())) {
+      for (int i = 0; i < b.size(); ++i) {
+        cout << b[i] << ' ';
+      }
+      cout << endl;
+      break;
+    }
+  } while (std::next_permutation(a.begin(), a.end()));
+}
+
+
 TEST(QuickSortTest, Stress) {
   const int TEST_COUNT = 1000;
   const int MAX_VALUE = 100;
 
-  srand(42);
   for (int test = 0; test < TEST_COUNT; ++test) {
-    int n = 2;
+    int n = test + 1;
     std::vector<int> a(n);
     for (int i = 0; i < n; ++i) {
       a[i] = rand() % MAX_VALUE;
@@ -43,8 +77,14 @@ TEST(QuickSortTest, Stress) {
 
     bicycle::quick_sort(a.begin(), a.end());
 
-    EXPECT_TRUE(bicycle::is_ordered(a.begin(), a.end()));
+    ASSERT_TRUE(bicycle::is_ordered(a.begin(), a.end()));
   }
+}
+
+TEST(QuickSortTest, AllEqual) {
+  vector<int> a(100000);
+  bicycle::quick_sort(a.begin(), a.end());
+  EXPECT_TRUE(bicycle::is_ordered(a.begin(), a.end()));
 }
 
 
@@ -52,7 +92,6 @@ TEST(OrderStatisticsTest, MiniMax) {
   const int TEST_COUNT = 1000;
   const int MAX_VALUE = 100;
 
-  srand(42);
   for (int test = 0; test < TEST_COUNT; ++test) {
     int n = test + 1;
     std::vector<int> a(n);
@@ -75,7 +114,6 @@ TEST(OrderStatisticsTest, KthElement) {
   const int TEST_COUNT = 1000;
   const int MAX_VALUE = 100;
 
-  srand(42);
   for (int test = 0; test < TEST_COUNT; ++test) {
     int n = test + 1;
     std::vector<int> a(n);

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <iostream>
 
 namespace bicycle {
 
@@ -95,7 +96,8 @@ ForwardIterator lomuto_partition(ForwardIterator first, ForwardIterator last) {
   ForwardIterator lower = first;
 
   for (ForwardIterator i = first + 1; i != last; ++i) {
-    if (*i < pivot) {
+    if (*i < pivot ||
+        (*i == pivot && rand() % 2)) {
       ++lower;
       std::swap(*lower, *i);
     }
@@ -110,7 +112,7 @@ void quick_sort(RandomAccessIterator first, RandomAccessIterator last) {
   if (first + 1 < last) {
     int n = std::distance(first, last);
     std::swap(*first, *(first + rand() % n));
-    RandomAccessIterator pivot_iterator = lomuto_partition(first, last);
+    RandomAccessIterator pivot_iterator = partition(first, last);
     quick_sort(first, pivot_iterator);
     quick_sort(pivot_iterator + 1, last);
   }

@@ -4,7 +4,7 @@ include $(SRCROOT)/config.mak
 TARGET = libtoolbox_basic.so
 
 SOURCES = $(SRCROOT)/basic/*.cc
-HEADERS = $(INCLUDES_PATH)/basic
+HEADERS = $(INCLUDES_PATH)/basic/*.h
 
 CXXFLAGS += -shared -fPIC
 
