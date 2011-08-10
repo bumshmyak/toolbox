@@ -1,10 +1,10 @@
-SRCROOT = $(realpath ../)
+SRCROOT = $(realpath ..)
 include $(SRCROOT)/config.mak
 
-TARGET = libtoolbox_geometry.so
+TARGET = libtoolbox_math.so
 
-SOURCES = $(SRCROOT)/geometry/*.cc
-HEADERS = $(INCLUDES_PATH)/geometry/*.h
+SOURCES = $(SRCROOT)/math/*.cc
+HEADERS = $(INCLUDES_PATH)/math/*.h
 
 CXXFLAGS += -shared -fPIC
 
@@ -14,8 +14,7 @@ all : $(INSTALL_LIB_PATH)/$(TARGET)
 
 $(INSTALL_LIB_PATH)/$(TARGET) : $(SOURCES) $(HEADERS)
 	$(CPPLINT) $(SOURCES) $(HEADERS)
-	$(CXX) -o $(INSTALL_LIB_PATH)/$(TARGET) $(CXXFLAGS) $(SOURCES) 
-
+	$(CXX)  -o $(INSTALL_LIB_PATH)/$(TARGET) $(CXXFLAGS) $(SOURCES) 
 
 clean : 
 	rm -rf $(INSTALL_LIB_PATH)/$(TARGET)

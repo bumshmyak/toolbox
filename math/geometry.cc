@@ -1,4 +1,4 @@
-#include "geometry/geometry.h"
+#include "math/geometry.h"
 
 #include <cmath>
 #include <iostream>
@@ -9,27 +9,6 @@
 using std::min;
 using std::max;
 using std::vector;
-
-// Points
-bool epsilon_equal(double a, double b, double eps) {
-  return abs(a - b) < EPS;
-}
-
-bool epsilon_lower(double a, double b, double eps) {
-  return a + EPS < b;
-}
-
-bool epsilon_lower_or_equal(double a, double b, double eps) {
-  return epsilon_lower(a, b, EPS) || epsilon_equal(a, b, EPS);
-}
-
-bool epsilon_greater(double a, double b, double eps) {
-  return !epsilon_lower_or_equal(a, b, eps);
-}
-      
-bool epsilon_greater_or_equal(double a, double b, double eps) {
-  return !epsilon_lower(a, b, EPS);
-}
 
 void Point::init_from_polar(double r, double phi) {
   x = r * cos(phi);
@@ -458,3 +437,93 @@ vector<Point> get_convex_hull(const vector<Point>& input_points) {
 
   return res;
 }
+int gcd(int a, int b) {
+  if (b == 0) {
+    return a;
+  } else {
+    return gcd(b, a % b);
+  }
+}
+
+int get_interior_integer_points_count(const vector<Point>& points) {
+  Polygon poly;
+  poly.init(points);
+  double s = poly.square();
+  double b = points.size();
+  for (int i = 0; i < points.size(); ++i) {
+    Point first = points[(i + 1) % points.size()];
+    Point second = points[i];
+    int x = fabs(first.x - second.x);
+    int y = fabs(first.y - second.y);
+    int add = gcd(x, y) - 1;
+    b += add;
+  }
+  return s - b / 2 + 1;
+}
+
+#if 0
+  int n;
+  cin >> n;
+  vector<Point> points(n);
+  for (int i = 0; i < n; ++i) {
+    cin >> points[i];
+  }
+  cout << get_interior_integer_points_count(points) << endl;
+  
+  return 0;
+  
+  int k;
+  Polygon poly;
+  cin >> k >> poly;
+
+  double part_square = poly.square() / k;
+  double have_so_far = 0;
+
+  Point origin = poly.points[0];
+
+  stack<Point> last;
+  for (int i = poly.points.size() - 1; i > 0; --i) {
+    last.push(poly.points[i]);
+  }
+
+  vector<Point> res;
+  
+  cout.precision(6);
+  int outputed = 0;
+  while (outputed < (k - 1)) {
+    Point first = last.top();
+    last.pop();
+    Point second = last.top();
+    double s = fabs(vector_product(first - origin, second - origin) / 2);
+    if (epsilon_lower(have_so_far + s, part_square)) {
+      have_so_far += s;
+    } else {
+      double l = 0;
+      double r = 1;
+      double add;
+      Point middle_point;
+      for (int i = 0; i < 200; ++i) {
+        double m = (l + r) / 2;
+        middle_point = first + Point(m * (second.x - first.x),
+                                     m * (second.y - first.y));
+
+        add = fabs(vector_product(first - origin,
+                                  middle_point - origin) / 2);
+        if (epsilon_greater(have_so_far + add, part_square)) {
+          r = m;
+        } else {
+          l = m;
+        }
+      }
+      res.push_back(middle_point);
+      have_so_far = 0;
+      last.push(middle_point);
+      ++outputed;
+    }
+  }
+
+
+  for (int i = 0; i < res.size(); ++i) {
+    cout << std::fixed << origin << ' ' << res[i] << endl;
+  }
+#endif

@@ -3,4 +3,4 @@ SRCROOT = $(realpath ../..)
 .PHONY: all check clean
 
 all check clean: 
-	$(MAKE) -C $(SRCROOT)/geometry $@
+	$(MAKE) -C $(SRCROOT)/math $@

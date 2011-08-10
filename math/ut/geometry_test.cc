@@ -1,4 +1,4 @@
-#include "geometry/geometry.h"
+#include "math/geometry.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -146,12 +146,12 @@ TEST(LinesTest, LinePointDistance) {
 }
 
   
-TEST(TringleTest, MedianIntersectionPoint) {
-  Tringle tringle(Point(1, 1),
+TEST(TriangleTest, MedianIntersectionPoint) {
+  Triangle triangle(Point(1, 1),
                   Point(2, 4),
                   Point(3, 2));
 
-  Point p = tringle.get_medians_intersection_point();
+  Point p = triangle.get_centroid();
 
   ASSERT_TRUE(epsilon_equal(2, p.x, 1e-5));
   ASSERT_TRUE(epsilon_equal(2.33333, p.y, 1e-5));

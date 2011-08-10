@@ -1,12 +1,12 @@
 SRCROOT = $(realpath ../..)
 include $(SRCROOT)/config.mak
 
-TARGET = geometry_test 
+TARGET = math_test 
 
-SOURCES = $(SRCROOT)/geometry/ut/*.cc
-HEADERS = $(INCLUDES_PATH)/geometry/*.h
+SOURCES = $(SRCROOT)/math/ut/*.cc
+HEADERS = $(INCLUDES_PATH)/math/*.h
 
-LDFLAGS += -L$(INSTALL_LIB_PATH) -ltoolbox_geometry
+LDFLAGS += -L$(INSTALL_LIB_PATH) -ltoolbox_math
 LDFLAGS += $(GTEST_LIB_PATH)/gtest_main.a 
 LDFLAGS += -Wl,-rpath=$(INSTALL_LIB_PATH)
 

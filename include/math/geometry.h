@@ -1,17 +1,11 @@
-#ifndef TOOLBOX_GEOMETRY_H_
-#define TOOLBOX_GEOMETRY_H_
+#ifndef TOOLBOX_MATH_GEOMETRY_H_
+#define TOOLBOX_MATH_GEOMETRY_H_
 
 #include <iostream>
 #include <algorithm>
 #include <vector>
 
-#define EPS 1e-9
-
-bool epsilon_equal(double a, double b, double eps = EPS);
-bool epsilon_lower(double a, double b, double eps = EPS);
-bool epsilon_lower_or_equal(double a, double b, double eps = EPS);
-bool epsilon_greater(double a, double b, double eps = EPS);
-bool epsilon_greater_or_equal(double a, double b, double eps = EPS);
+#include "math/epsilon.h"
 
 struct Point {
   double x;
@@ -135,7 +129,7 @@ struct Polygon {
 
   void init(const std::vector<Point>& _points);
   bool is_convex() const;
-  bool contains(const Point& point);
+  bool contains(const Point& point) const;
   bool convex_contains(const Point& point) const;
   double square() const;
 };
@@ -164,4 +158,4 @@ struct AngleComparator {
 
 std::vector<Point> get_convex_hull(const std::vector<Point>& input_points);
 
-#endif  // TOOLBOX_GEOMETRY_H_
+#endif  // TOOLBOX_MATH_GEOMETRY_H_
