@@ -61,6 +61,58 @@ Graph generate_random_graph(long long vertices_count, long long arcs_count) {
   return graph;
 }
 
+Graph normalize(const Graph& graph) {
+  Graph result;
+  result.resize(graph.size());
+  for (int tail = 0; tail < graph.size(); ++tail) {
+    for (int arc_index = 0; arc_index < graph[tail].size(); ++arc_index) {
+      const Arc& arc = graph[tail][arc_index];
+      if (tail != arc.head) {
+        vector<Arc>::iterator result_arc_iterator = result[tail].begin();
+        for (; result_arc_iterator != result[tail].end();
+             ++result_arc_iterator) {
+          if (result_arc_iterator->head == arc.head) {
+            break;
+          }
+        }
+        if (result_arc_iterator != result[tail].end()) {
+          result_arc_iterator += arc.weight;
+        } else {
+          result[tail].push_back(arc);
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+Graph normalize(const Graph& graph, int source, int destination) {
+  Graph result;
+  result.resize(graph.size());
+  for (int tail = 0; tail < graph.size(); ++tail) {
+    for (int arc_index = 0; arc_index < graph[tail].size(); ++arc_index) {
+      const Arc& arc = graph[tail][arc_index];
+      if (tail != arc.head && arc.head != source && tail != destination) {
+        vector<Arc>::iterator result_arc_iterator = result[tail].begin();
+        for (; result_arc_iterator != result[tail].end();
+             ++result_arc_iterator) {
+          if (result_arc_iterator->head == arc.head) {
+            break;
+          }
+        }
+        if (result_arc_iterator != result[tail].end()) {
+          result_arc_iterator += arc.weight;
+        } else {
+          result[tail].push_back(arc);
+        }
+      }
+    }
+  }
+
+  return result;
+}  
+
 Graph invert(const Graph& graph) {
   Graph inverted_graph(graph.size());
   for (int tail = 0; tail < graph.size(); ++tail) {
@@ -92,3 +144,4 @@ Graph add_source_vertex(const Graph& graph) {
 
   return sourced_graph;
 }
+

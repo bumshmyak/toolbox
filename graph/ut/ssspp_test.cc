@@ -7,6 +7,23 @@
 #include "gtest/gtest.h"
 
 using std::vector;
+using std::cerr;
+using std::endl;
+
+TEST(SSSPPTest, Simplest) {
+  Graph graph(3);
+  graph[0].push_back(Arc(1, 0));
+  graph[0].push_back(Arc(2, 9));
+  graph[1].push_back(Arc(2, 8));
+  
+  vector<int> dijkstra_on_array_result;
+  dijkstra_on_array(graph, 0, dijkstra_on_array_result);
+
+  vector<int> tarjan_ssspp_result;
+  ASSERT_TRUE(tarjan_ssspp(graph, 0, tarjan_ssspp_result));
+
+  ASSERT_EQ(dijkstra_on_array_result, tarjan_ssspp_result);
+}
 
 TEST(SSSPPTest, SingleSource) {
   for (int vertices_count = 1; vertices_count < 10; ++vertices_count) {
@@ -35,11 +52,15 @@ TEST(SSSPPTest, SingleSource) {
       vector<int> ford_bellman_on_queue_result;
       ford_bellman_on_queue(graph, source, ford_bellman_on_queue_result);
 
-      EXPECT_EQ(dijkstra_on_array_result, dijkstra_on_priority_queue_result);
-      EXPECT_EQ(dijkstra_on_array_result, dijkstra_on_set_result);
-      EXPECT_EQ(dijkstra_on_array_result, dijkstra_on_kary_heap_result);
-      EXPECT_EQ(dijkstra_on_array_result, ford_bellman_result);
-      EXPECT_EQ(dijkstra_on_array_result, ford_bellman_on_queue_result);
+      vector<int> tarjan_ssspp_result;
+      EXPECT_TRUE(tarjan_ssspp(graph, source, tarjan_ssspp_result));
+
+      ASSERT_EQ(dijkstra_on_array_result, dijkstra_on_priority_queue_result);
+      ASSERT_EQ(dijkstra_on_array_result, dijkstra_on_set_result);
+      ASSERT_EQ(dijkstra_on_array_result, dijkstra_on_kary_heap_result);
+      ASSERT_EQ(dijkstra_on_array_result, ford_bellman_result);
+      ASSERT_EQ(dijkstra_on_array_result, ford_bellman_on_queue_result);
+      ASSERT_EQ(dijkstra_on_array_result, tarjan_ssspp_result);
     }
   }
 }
@@ -92,4 +113,14 @@ TEST(SSSPPTest, NegativeArcs) {
   // !!!
   EXPECT_EQ(2, dijkstra_result[3]);
   EXPECT_EQ(-7, ford_bellman_result[3]);
+}
+
+TEST(SSSPPTest, NegativeCycle) {
+  Graph graph(3);
+  graph[0].push_back(Arc(1, 0));
+  graph[1].push_back(Arc(2, 0));
+  graph[2].push_back(Arc(0, -1));
+
+  vector<int> d;
+  EXPECT_FALSE(tarjan_ssspp(graph, 0, d));
 }
